@@ -1,0 +1,38 @@
+.create-post {
+    width: auto;
+}
+h1{
+    margin: 0 0 20px 0;
+}
+.form-group{
+    margin-bottom: 20px;
+}
+label {
+    font-size: 20px;
+    margin-top: 30px;
+    text-align: left;
+}
+input {
+    width: 250px;
+    font-size: 18px;
+    padding: 5px 10px;
+    margin:10px 0 20px 0;
+}
+select {
+    width: 250px;
+    font-size: 18px;
+    padding: 5px 10px;
+    margin:10px 0 20px 0;
+}
+textarea {
+    width: 90%;
+    height: 300px;
+    font-size: 18px;
+    padding: 5px 10px;
+    margin:10px 0 20px 0;
+}
+button {
+    font-size: 18px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
