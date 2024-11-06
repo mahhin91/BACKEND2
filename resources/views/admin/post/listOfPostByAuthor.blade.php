@@ -33,7 +33,7 @@
                     @if(auth()->user()->role == 'admin')
                         <td>{{ $author->name }}</td>
                         <td>{{ $post->created_at }}</td>
-                        <td><img src="{{ asset('storage/' . $post->image) }}" alt="Ảnh minh họa"></td>
+                        <td><img src="{{ asset('storage/' . $post->thumbnail) }}" alt="Ảnh minh họa"></td>
                         <td>{{ $post->likes }}</td>
                         <td>{{ $post->dislikes }}</td>
                         @if ($post->status == 'pending')

@@ -7,6 +7,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PostController extends Controller
 {
@@ -19,16 +20,20 @@ class PostController extends Controller
     public function adminIndex()
     {
         $posts = DB::table('posts')->where('status', 'approved')
-                ->join('users', 'users.id', '=', 'posts.user_id')
+            ->join('users', 'users.id', '=', 'posts.user_id')
+            ->select('posts.*', 'users.name as user_name') 
                 ->paginate(5);
         return view('admin.post.index', compact('posts'));
     }
 
     public function waitingApproval(Request $request)
     {
-        $posts = DB::table('posts')->where('status', 'pending')
+        $posts = DB::table('posts')
+                ->where('status', 'pending')
                 ->join('users', 'users.id', '=', 'posts.user_id')
+                ->select('posts.*', 'users.name as user_name') // chọn tất cả cột từ posts và tên người dùng từ users
                 ->paginate(5);
+        // dd($posts);
         return view('admin.post.waitingApproval', compact('posts'));
     }
 
@@ -80,13 +85,15 @@ class PostController extends Controller
 
     public function approve($id)
     {
-        // Logic duyệt bài viết
-        $post = Post::findOrFail($id);
-        $post->status = 'approved';
-        $post->status = 'approved';
-        $post->save();
-
-        return redirect()->back()->with('success', 'Duyệt bài viết thành công!');
+        try {
+            $post = Post::findOrFail($id);
+            $post->status = 'approved';
+            $post->save();
+    
+            return redirect()->back()->with('success', 'Duyệt bài viết thành công!');
+        } catch (ModelNotFoundException $e) {
+            return redirect()->back()->withErrors('Bài viết không tồn tại hoặc đã được duyệt trước đó.');
+        }
     }
 
     public function reject($id)
