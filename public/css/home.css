@@ -52,10 +52,16 @@ body {
     margin: 20px auto;
 }
 
+.title-page {
+    text-align: left;
+    margin-bottom: 30px;
+}
+
 .posts {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    justify-content: center;
 }
 
 .post-card {
@@ -74,6 +80,47 @@ body {
 }
 
 .post-card h3 {
+    margin: 10px 0;
+}
+
+.author-card {
+    font-size: 14px;
+    color: #888;
+}
+
+.created-at-card {
+    font-size: 12px;
+    color: #888;
+}
+
+.content-post {
+    font-size: 16px;
+    color: #333;
+    margin: 20px 0;
+}
+
+.detail-post {
+    text-decoration: none;
+    color: black;
+    border: 1px solid #ddd;
+    padding: 5px 10px !important;
+    border-radius: 8px;
+}
+
+.detail-post:hover {
+    background-color: #ddd;
+}
+
+.tal{
+    text-align: left;
+}
+
+.likes{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #888;
+    font-size: 14px;
     margin: 10px 0;
 }
 

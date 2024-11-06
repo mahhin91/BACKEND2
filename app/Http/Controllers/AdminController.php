@@ -8,49 +8,35 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    // Phương thức hiển thị danh sách bài viết chờ xác nhận
-    // public function index()
-    // {
-    //     $pendingPosts = Post::where('status', 'pending')->get();
-    //     return view('admin.posts.index', compact('pendingPosts'));
-    // }
+    // Quản lý danh sách tác giả
+    public function authors()
+    {
+        $authors = User::where('role', 'author')
+                ->withCount('posts')
+                ->paginate(5);
+        return view('admin.authors', compact('authors'));
+    }
 
-    // // Xác nhận bài viết
-    // public function approve(Post $post)
-    // {
-    //     $post->status = 'approved';
-    //     $post->publish_date = now();
-    //     $post->save();
+    public function getCountPostOfUser($id)
+    {
+        $count = Post::where('user_id', '=', $id)->count();
+        echo($count);
+        return $count;
+    }
 
-    //     return redirect()->route('admin.posts.index');
-    // }
+    public function readers()
+    {
+        $readers = User::where('role', 'reader')->paginate(5);
+        return view('admin.readers', compact('readers'));
+    }
 
-    // // Từ chối bài viết và thêm lý do
-    // public function reject(Request $request, Post $post)
-    // {
-    //     $validated = $request->validate(['rejection_reason' => 'required|string']);
+    // Xóa tác giả
+    public function deleteAuthor(User $author)
+    {
+        if ($author->role == 'author') {
+            $author->delete();
+        }
 
-    //     $post->status = 'rejected';
-    //     $post->rejection_reason = $validated['rejection_reason'];
-    //     $post->save();
-
-    //     return redirect()->route('admin.posts.index');
-    // }
-
-    // // Quản lý danh sách tác giả
-    // public function manageAuthors()
-    // {
-    //     $authors = User::where('role', 'author')->get();
-    //     return view('admin.authors.index', compact('authors'));
-    // }
-
-    // // Xóa tác giả
-    // public function deleteAuthor(User $author)
-    // {
-    //     if ($author->role == 'author') {
-    //         $author->delete();
-    //     }
-
-    //     return redirect()->route('admin.authors.index');
-    // }
+        return redirect()->route('admin.authors.index');
+    }
 }

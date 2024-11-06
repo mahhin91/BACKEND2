@@ -19,20 +19,21 @@
                 <tr>
                     <td>{{ $post->id }}</td>
                     <td>{{ $post->title }}</td>
-                    <td>{{ $post->author->name }}</td>
+                    <td>{{ $post->name }}</td>
                     <td>{{ $post->created_at }}</td>
-                    <td><img src="{{ asset('storage/' . $post->image) }}" alt="Ảnh minh họa"></td>
+                    <td><img src="{{ asset('storage/' . $post->thumbnail) }}" alt="Ảnh minh họa"></td>
                     <td>
-                        <a href="{{ route('posts.approve', $post->id) }}">Xác nhận</a>
-                        <a href="{{ route('posts.reject', $post->id) }}">Không xác nhận</a>
+                        <form action="{{ route('approve', $post->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit">Xác nhận</button>
+                        </form>
+                        <form action="{{ route('reject', $post->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit">Không xác nhận</button>
+                        </form>
                     </td>
                     <td>
-                        <a href="{{ route('posts.show', $post->id) }}">Xem</a>
-                        <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit">Xóa</button>
-                        </form>
+                        <a class="detailPost" href="{{ route('detailPost', $post->id) }}">Xem</a>
                     </td>
                 </tr>
             @endforeach

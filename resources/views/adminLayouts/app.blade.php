@@ -13,11 +13,12 @@
         <h3>Trang web quan ly posts</h3>
         <ul>
             @if(auth()->user()->role == 'admin')
-                <li><a href="{{ route('admin.users.index') }}">Quản lý độc giả</a></li>
-                <li><a href="{{ route('admin.users.index', ['role' => 'author']) }}">Quản lý tác giả</a></li>
-                <li><a href="{{ route('adminIndex') }}">Quản lý bài viết</a></li><li>
-                    <a href="{{ route('admin.waiting-approval') }}">Chờ duyệt</a>
+                <li><a href="{{ route('author.index') }}">Quản lý tác giả</a></li>
+                <li><a href="{{ route('adminIndex') }}">Quản lý bài viết</a></li>
+                <li>
+                    <a href="{{ route('waitingApproval') }}">Chờ duyệt</a>
                 </li>
+                <li><a href="{{ route('categories') }}">Quản lý danh mục</a></li>
                 
             @elseif(auth()->user()->role == 'author')
                 <li><a href="{{ route('posts.create') }}">Tạo bài viết</a></li>

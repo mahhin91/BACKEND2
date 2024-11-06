@@ -12,6 +12,7 @@
                     <th>Ngày tạo</th>
                     <th>Ảnh minh họa</th>
                     <th>Lượt thích</th>
+                    <th>Không thích</th>
                     <th>Trạng thái</th>
                     <th>Chức năng</th>
                 @else
@@ -30,13 +31,22 @@
                     <td>{{ $post->id }}</td>
                     <td>{{ $post->title }}</td>
                     @if(auth()->user()->role == 'admin')
-                        <td>{{ $post->author->name }}</td>
+                        <td>{{ $author->name }}</td>
                         <td>{{ $post->created_at }}</td>
                         <td><img src="{{ asset('storage/' . $post->image) }}" alt="Ảnh minh họa"></td>
                         <td>{{ $post->likes }}</td>
-                        <td>{{ $post->status }}</td>
+                        <td>{{ $post->dislikes }}</td>
+                        @if ($post->status == 'pending')
+                            <td><p class="status pending">Chờ</p></td>
+                        @endif
+                        @if ($post->status == 'rejected')
+                            <td><p class="status rejected">Hủy</p></td>
+                        @endif
+                        @if ($post->status == 'approved')
+                            <td><p class="status approved">Đã xác nhận</p></td>
+                        @endif
                         <td>
-                            <a href="{{ route('posts.show', $post->id) }}">Xem</a>
+                            <a class="detailPost" href="{{ route('detailPost', $post->id) }}">Xem</a>
                             <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
@@ -46,9 +56,18 @@
                     @else
                         <td>{{ $post->created_at }}</td>
                         <td><img src="{{ asset('storage/' . $post->thumbnail) }}" alt="Ảnh minh họa"></td>
+                        @if ($post->status == 'pending')
+                            <td><p class="status pending">Chờ</p></td>
+                        @endif
+                        @if ($post->status == 'rejected')
+                            <td><p class="status rejected">Hủy</p></td>
+                        @endif
+                        @if ($post->status == 'approved')
+                            <td><p class="status approved">Đã xác nhận</p></td>
+                        @endif
                         <td>{{ $post->status }}</td>
                         <td>
-                            <a href="{{ route('detailPost', $post->id) }}">Xem</a>
+                            <a class="detailPost" href="{{ route('detailPost', $post->id) }}">Xem</a>
                             <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')

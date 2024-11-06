@@ -2,9 +2,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -16,20 +18,25 @@ class PostController extends Controller
 
     public function adminIndex()
     {
-        $posts = Post::all();
-        return view('posts.index', compact('posts'));
+        $posts = DB::table('posts')->where('status', 'approved')
+                ->join('users', 'users.id', '=', 'posts.user_id')
+                ->paginate(5);
+        return view('admin.post.index', compact('posts'));
     }
 
     public function waitingApproval(Request $request)
     {
-        $posts = Post::where('status', 'pending')->paginate(5);
+        $posts = DB::table('posts')->where('status', 'pending')
+                ->join('users', 'users.id', '=', 'posts.user_id')
+                ->paginate(5);
         return view('admin.post.waitingApproval', compact('posts'));
     }
 
     public function listOfPostByAuthor(Request $request, $authorId)
     {
         $posts = Post::where('user_id', $authorId)->paginate(5);
-        return view('admin.post.listOfPostByAuthor', compact('posts', 'authorId'));
+        $author = User::find($authorId);
+        return view('admin.post.listOfPostByAuthor', compact('posts', 'author'));
     }
 
     public function detailPost($id)
@@ -75,6 +82,7 @@ class PostController extends Controller
     {
         // Logic duyệt bài viết
         $post = Post::findOrFail($id);
+        $post->status = 'approved';
         $post->status = 'approved';
         $post->save();
 

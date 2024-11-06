@@ -1,9 +1,40 @@
 table{
     width: 100%;
     text-align: center;
+    margin-top: 30px;
 }
 img{
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
+}
+.detailPost{
+    border: 1px solid #767676;
+    padding: 5px 10px;
+    font-size: 18px;
+    background-color: #efefef;
+    text-decoration: none;
+    color: black;
+}
+.detailPost:hover{
+    background-color: #e5e2e2;
+}
+
+.status{
+    color: white;   
+    font-weight: bold;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+.pending{
+    background-color: yellow;
+}
+
+.approved{
+    background-color: green;
+}
+
+.rejected{
+    background-color: red;
 }
