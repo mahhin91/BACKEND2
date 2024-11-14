@@ -22,7 +22,7 @@ class PostController extends Controller
         $posts = DB::table('posts')->where('status', 'approved')
             ->join('users', 'users.id', '=', 'posts.user_id')
             ->select('posts.*', 'users.name as user_name') 
-                ->paginate(5);
+            ->paginate(5);
         return view('admin.post.index', compact('posts'));
     }
 
