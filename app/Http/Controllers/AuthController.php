@@ -6,9 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\LogsExceptions;
 
 class AuthController extends Controller
 {
+    use LogsExceptions;
+
     public function login()
     {
         return view('auth.login');
@@ -16,17 +19,22 @@ class AuthController extends Controller
 
     public function authenticate(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        try {
+            $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            if (Auth::user()->role == 'reader') {
-                return redirect()->route('home');
-            } else {
-                return redirect()->intended('dashboard'); // Chuyển hướng đến dashboard
+            if (Auth::attempt($credentials)) {
+                if (Auth::user()->role == 'reader') {
+                    return redirect()->route('home');
+                } else {
+                    return redirect()->intended('dashboard'); // Chuyển hướng đến dashboard
+                }
             }
-        }
 
-        return redirect()->route('login')->withErrors('Thông tin đăng nhập không chính xác.');
+            return redirect()->route('login')->withErrors('Thông tin đăng nhập không chính xác.');
+        } catch (\Exception $e) {
+            $this->logException($e, 'AuthController@authenticate');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi đăng nhập.');
+        }
     }
 
     public function logout()
@@ -42,35 +50,30 @@ class AuthController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
+        try {
+            // Validate dữ liệu
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+                'birth_date' => 'required|date',
+                'role' => 'required|in:reader,author'
+            ]);
 
-        // Xác thực dữ liệu
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'birth_date' => 'required|date',
-            'role' => 'required|in:author,reader', // Chỉ chấp nhận 'author' hoặc 'reader'
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Kích thước tối đa 2MB
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed', // Kiểm tra mật khẩu tối thiểu 8 ký tự
-        ]);
+            // Tạo user mới
+            User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'birth_date' => $validated['birth_date'],
+                'role' => $validated['role']
+            ]);
 
-        // Xử lý ảnh đại diện
-        $avatarPath = null;
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public'); // Lưu ảnh vào thư mục 'storage/app/public/avatars'
-        }
-
-        // Tạo người dùng mới
-        User::create([
-            'name' => $request->name,
-            'birth_date' => $request->birth_date,
-            'role' => $request->role,
-            'avatar' => $avatarPath, // Lưu đường dẫn ảnh đại diện
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // Mã hóa mật khẩu
-        ]);
-
-        // Đăng nhập tự động hoặc chuyển hướng sau khi đăng ký
-        return redirect()->route('login')->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
+            // Chuyển hướng về trang login với thông báo thành công
+            return redirect()->route('login')->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
+        } catch (\Exception $e) {
+            $this->logException($e, 'AuthController@store');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi đăng ký.');
         }
     }
+}

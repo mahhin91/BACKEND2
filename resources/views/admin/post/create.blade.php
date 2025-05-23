@@ -21,7 +21,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="thumbnail" class="form-label">Ảnh minh họa</label>
-                            <input type="file" class="form-control" id="thumbnail" name="thumbnail" required>
+                            <input type="file" class="form-control" id="thumbnail" name="thumbnail" required accept="image/jpeg,image/png,image/jpg,image/gif">
                         </div>
                         <div class="mb-3">
                             <label for="category_id" class="form-label">Danh mục</label>

@@ -3,9 +3,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Traits\LogsExceptions;
 
 class CategoryController extends Controller
 {
+    use LogsExceptions;
+
     public function index()
     {
         $categories = Category::all();
@@ -18,16 +21,25 @@ class CategoryController extends Controller
     }
     public function store(Request $request)
     {
-
-        $request->validate(['name' => 'required']);
-        Category::create(['name' => $request->name]);
-        return redirect()->route('categories');
+        try {
+            $request->validate(['name' => 'required']);
+            Category::create(['name' => $request->name]);
+            return redirect()->route('categories');
+        } catch (\Exception $e) {
+            $this->logException($e, 'CategoryController@store');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi tạo danh mục.');
+        }
     }
 
     public function delete($id)
     {
-        $category = Category::findOrFail($id);
-        $category->delete();
-        return redirect()->route('categories');
+        try {
+            $category = Category::findOrFail($id);
+            $category->delete();
+            return redirect()->route('categories');
+        } catch (\Exception $e) {
+            $this->logException($e, 'CategoryController@delete');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi xóa danh mục.');
+        }
     }
 }

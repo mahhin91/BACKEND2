@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Traits\LogsExceptions;
 
 class PostController extends Controller
 {
+    use LogsExceptions;
+
     public function index()
     {
         $posts = Post::all();
@@ -58,29 +61,33 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'content' => 'required',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'category_id' => 'required',
-        ]);
-    
-        $post = new Post();
-        $post->title = $request->input('title');
-        $post->content = $request->input('content');
-        $post->user_id = auth()->user()->id;
-        $post->category_id = $request->input('category_id');
-    
-        if ($request->hasFile('thumbnail')) {
-            $thumbnail = $request->file('thumbnail');
-            $thumbnailName = time().'.'.$thumbnail->getClientOriginalExtension();
-            $thumbnail->move(public_path('storage'), $thumbnailName);
-            $post->thumbnail = $thumbnailName;
-        }
-    
-        $post->save();
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'content' => 'required|string',
+                'thumbnail' => 'required|image|max:2048',
+                'category_id' => 'required|exists:categories,id',
+            ]);
 
-        return redirect()->route('listOfPostByAuthor', auth()->user()->id)->with('success', 'Tạo bài viết thành công!');
+            if ($request->hasFile('thumbnail')) {
+                $file = $request->file('thumbnail');
+                $path = $file->store('thumbnails', 'public');
+                $validated['thumbnail'] = $path;
+            }
+
+            $validated['user_id'] = auth()->user()->id;
+            $validated['status'] = 'pending';
+
+            Post::create($validated);
+            
+            return redirect()->route('listOfPostByAuthor', auth()->user()->id)
+                ->with('success', 'Tạo bài viết thành công!');
+        } catch (\Exception $e) {
+            $this->logException($e, 'PostController@store');
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     public function approve($id)
@@ -92,18 +99,23 @@ class PostController extends Controller
     
             return redirect()->back()->with('success', 'Duyệt bài viết thành công!');
         } catch (ModelNotFoundException $e) {
+            $this->logException($e, 'PostController@approve');
             return redirect()->back()->withErrors('Bài viết không tồn tại hoặc đã được duyệt trước đó.');
         }
     }
 
     public function reject($id)
     {
-        // Logic từ chối bài viết
-        $post = Post::findOrFail($id);
-        $post->status = 'rejected';
-        $post->save();
+        try {
+            $post = Post::findOrFail($id);
+            $post->status = 'rejected';
+            $post->save();
 
-        return redirect()->back()->with('success', 'Từ chối bài viết thành công!');
+            return redirect()->back()->with('success', 'Từ chối bài viết thành công!');
+        } catch (\Exception $e) {
+            $this->logException($e, 'PostController@reject');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi từ chối bài viết.');
+        }
     }
 
     // public function edit($id)
@@ -141,34 +153,41 @@ class PostController extends Controller
 
     public function destroy($id)
     {
-        $post = Post::findOrFail($id);
-        $author_id = $post->user_id;
-        $post->delete();
+        try {
+            $post = Post::findOrFail($id);
+            $author_id = $post->user_id;
+            $post->delete();
 
-        return redirect()->route('listOfPostByAuthor', $author_id);
+            return redirect()->route('listOfPostByAuthor', $author_id);
+        } catch (\Exception $e) {
+            $this->logException($e, 'PostController@destroy');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi xóa bài viết.');
+        }
     }
 
     public function like(Request $request)
     {
-        $post = Post::find($request->post_id);
-        if ($post) {
+        try {
+            $post = Post::findOrFail($request->post_id);
             $post->likes++;
             $post->save();
             return redirect()->route('detailPost', $post->id);
-        } else {
-            return response()->json(['error' => 'Bài viết không tồn tại']);
+        } catch (\Exception $e) {
+            $this->logException($e, 'PostController@like');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi like bài viết.');
         }
     }
 
     public function unlike(Request $request)
     {
-        $post = Post::find($request->post_id);
-        if ($post) {
+        try {
+            $post = Post::findOrFail($request->post_id);
             $post->dislikes++;
             $post->save();
             return redirect()->route('detailPost', $post->id);
-        } else {
-            return response()->json(['error' => 'Bài viết không tồn tại']);
+        } catch (\Exception $e) {
+            $this->logException($e, 'PostController@unlike');
+            return redirect()->back()->withErrors('Có lỗi xảy ra khi unlike bài viết.');
         }
     }
 }
