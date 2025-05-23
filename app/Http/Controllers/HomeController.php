@@ -13,7 +13,16 @@ class HomeController extends Controller
     {
         $posts = Post::where('status', 'approved')->orderBy('published_at', 'desc')->take(6)->get();
         $categories = Category::all();
-        return view('home.index', compact('posts', 'categories'));
+        $featuredPosts = \App\Models\Post::with('user')
+            ->orderByDesc('likes')
+            ->take(4)
+            ->get();
+
+        return view('home.index', [
+            'posts' => $posts,
+            'categories' => $categories,
+            'featuredPosts' => $featuredPosts,
+        ]);
     }
 
     public function getListPost()

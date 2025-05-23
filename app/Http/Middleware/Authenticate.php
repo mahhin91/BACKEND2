@@ -13,12 +13,29 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        if (!$request->expectsJson()) {
-            // Nếu người dùng đã đăng nhập và đang truy cập dashboard, không chuyển hướng
-            if (Auth::check() && $request->route()->named('dashboard')) {
-                return null;
+        if (! $request->expectsJson()) {
+            // Nếu truy cập các route quản lý thì chuyển về login
+            $adminPaths = [
+                'dashboard',
+                'admin',
+                'categories',
+                'category',
+                'posts/create',
+                'posts/store',
+                // Thêm các path quản lý khác nếu có
+            ];
+
+            $path = $request->path();
+
+            // Kiểm tra nếu path bắt đầu bằng các từ khóa quản lý
+            foreach ($adminPaths as $adminPath) {
+                if (str_starts_with($path, $adminPath)) {
+                    return route('login');
+                }
             }
-            return route('login'); // Chuyển hướng đến login nếu chưa đăng nhập
+
+            // Ngược lại, chuyển về trang home
+            return route('home');
         }
 
         return null;

@@ -6,12 +6,12 @@
     <title>Trang Chủ</title>
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="stylesheet" href="{{ asset('css/postDetail.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     @include('partials.header')
     <div class="content">
         @yield('content')
     </div>
-    {{-- <script src="{{ asset('js/script.js') }}"></script> --}}
 </body>
 </html>

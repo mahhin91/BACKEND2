@@ -19,6 +19,10 @@ use App\Http\Controllers\DashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// Thêm route này vào đầu file
+Route::redirect('/', '/home');
+
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/detailPost/{id}', [PostController::class, 'detailPost'])->name('detailPost');
 // Routes cho người dùng chưa đăng nhập
@@ -31,7 +35,7 @@ Route::post('/register', [AuthController::class, 'store']);
 // Routes yêu cầu người dùng đăng nhập
 Route::middleware('auth')->group(function () {
     // Route đăng xuất
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
     
     // Routes chỉ dành cho admin
     Route::middleware(['role:admin'])->group(function () {
