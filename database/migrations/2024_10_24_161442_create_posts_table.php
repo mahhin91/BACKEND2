@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('published_at')->nullable();
             $table->integer('likes')->default(0);
             $table->integer('dislikes')->default(0);
+            $table->integer('views')->default(0);
             $table->string('thumbnail')->nullable();
             $table->longText('content');
             $table->timestamps();

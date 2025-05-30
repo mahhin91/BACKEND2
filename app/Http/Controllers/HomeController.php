@@ -11,9 +11,17 @@ class HomeController extends Controller
 
     public function index()
     {
-        $posts = Post::where('status', 'approved')->orderBy('published_at', 'desc')->take(6)->get();
+        $query = Post::where('status', 'approved');
+        
+        // Filter by category if selected
+        if (request()->has('category')) {
+            $query->where('category_id', request('category'));
+        }
+        
+        $posts = $query->orderBy('published_at', 'desc')->take(6)->get();
         $categories = Category::all();
-        $featuredPosts = \App\Models\Post::with('user')
+        $featuredPosts = Post::with('user')
+            ->where('status', 'approved')
             ->orderByDesc('likes')
             ->take(4)
             ->get();
@@ -27,8 +35,15 @@ class HomeController extends Controller
 
     public function getListPost()
     {
+        $query = Post::where('status', 'approved');
+        
+        // Filter by category if selected
+        if (request()->has('category')) {
+            $query->where('category_id', request('category'));
+        }
+        
         // Lấy danh sách bài viết mới nhất, mỗi trang hiển thị 10 bài viết
-        $posts = Post::where('status', 'approved')->orderBy('published_at', 'desc')->paginate(10);
+        $posts = $query->orderBy('published_at', 'desc')->paginate(10);
         $categories = Category::all();
         return view('post', compact('posts', 'categories'));
     }

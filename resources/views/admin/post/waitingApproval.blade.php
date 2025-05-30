@@ -29,22 +29,22 @@
                                     <img src="{{ asset('storage/' . $post->thumbnail) }}" alt="Ảnh minh họa" class="rounded" width="60" height="40" style="object-fit:cover; border:1px solid #e2e8f0;">
                                 </td>
                                 <td>
-                                    <form action="{{ route('approve', $post->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('admin.posts.approve', $post->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            <i class="fas fa-check"></i> Xác nhận
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-check"></i>
                                         </button>
                                     </form>
-                                    <form action="{{ route('reject', $post->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('admin.posts.reject', $post->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-times"></i> Không xác nhận
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-times"></i>
                                         </button>
                                     </form>
                                 </td>
                                 <td>
                                     <a class="btn btn-sm btn-outline-primary" href="{{ route('detailPost', $post->id) }}">
-                                        <i class="fas fa-eye"></i> Xem
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                 </td>
                             </tr>

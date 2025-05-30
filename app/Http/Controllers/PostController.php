@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Traits\LogsExceptions;
+use App\Models\PostReaction;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -20,12 +22,20 @@ class PostController extends Controller
         return view('posts', compact('posts'));
     }
 
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        $posts = DB::table('posts')->where('status', 'approved')
+        $query = DB::table('posts')
             ->join('users', 'users.id', '=', 'posts.user_id')
-            ->select('posts.*', 'users.name as user_name') 
-            ->paginate(5);
+            ->select('posts.*', 'users.name as user_name');
+
+        // Thêm filter theo status nếu có
+        if ($request->has('status') && in_array($request->status, ['approved', 'pending', 'rejected'])) {
+            $query->where('status', $request->status);
+        } else {
+            $query->where('status', 'approved'); // Mặc định hiển thị approved
+        }
+
+        $posts = $query->paginate(5);
         return view('admin.post.index', compact('posts'));
     }
 
@@ -49,8 +59,20 @@ class PostController extends Controller
 
     public function detailPost($id)
     {
-        $post = Post::find($id);
-        return view('detailPost', compact('post'));
+        $post = Post::with(['user', 'category'])->findOrFail($id);
+        
+        // Tăng lượt xem
+        $post->incrementViews();
+        
+        // Lấy bài viết liên quan (cùng danh mục, khác bài viết hiện tại)
+        $relatedPosts = Post::where('category_id', $post->category_id)
+            ->where('id', '!=', $post->id)
+            ->where('status', 'approved')
+            ->orderBy('created_at', 'desc')
+            ->take(2)
+            ->get();
+            
+        return view('detailPost', compact('post', 'relatedPosts'));
     }
 
     public function create()
@@ -65,13 +87,14 @@ class PostController extends Controller
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'content' => 'required|string',
-                'thumbnail' => 'required|image|max:2048',
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
                 'category_id' => 'required|exists:categories,id',
             ]);
 
             if ($request->hasFile('thumbnail')) {
                 $file = $request->file('thumbnail');
-                $path = $file->store('thumbnails', 'public');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('thumbnails', $filename, 'public');
                 $validated['thumbnail'] = $path;
             }
 
@@ -165,29 +188,95 @@ class PostController extends Controller
         }
     }
 
-    public function like(Request $request)
+    public function like(Post $post)
     {
         try {
-            $post = Post::findOrFail($request->post_id);
-            $post->likes++;
-            $post->save();
-            return redirect()->route('detailPost', $post->id);
+            if (!auth()->check()) {
+                return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để like bài viết.');
+            }
+
+            if (auth()->user()->role !== 'reader') {
+                return redirect()->back()->with('error', 'Chỉ độc giả mới có thể like bài viết.');
+            }
+
+            $user = auth()->user();
+            
+            // Kiểm tra xem user đã có reaction chưa
+            $existingReaction = PostReaction::where('user_id', $user->id)
+                ->where('post_id', $post->id)
+                ->first();
+
+            if ($existingReaction) {
+                if ($existingReaction->reaction_type === 'like') {
+                    // Nếu đã like thì xóa reaction
+                    $existingReaction->delete();
+                    $message = 'Đã bỏ like bài viết';
+                } else {
+                    // Nếu đang dislike thì chuyển sang like
+                    $existingReaction->update(['reaction_type' => 'like']);
+                    $message = 'Đã chuyển từ dislike sang like';
+                }
+            } else {
+                // Tạo reaction mới
+                PostReaction::create([
+                    'user_id' => $user->id,
+                    'post_id' => $post->id,
+                    'reaction_type' => 'like'
+                ]);
+                $message = 'Đã like bài viết';
+            }
+
+            return redirect()->route('detailPost', $post->id)
+                ->with('success', $message);
         } catch (\Exception $e) {
             $this->logException($e, 'PostController@like');
-            return redirect()->back()->withErrors('Có lỗi xảy ra khi like bài viết.');
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi like bài viết.');
         }
     }
 
-    public function unlike(Request $request)
+    public function unlike(Post $post)
     {
         try {
-            $post = Post::findOrFail($request->post_id);
-            $post->dislikes++;
-            $post->save();
-            return redirect()->route('detailPost', $post->id);
+            if (!auth()->check()) {
+                return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để dislike bài viết.');
+            }
+
+            if (auth()->user()->role !== 'reader') {
+                return redirect()->back()->with('error', 'Chỉ độc giả mới có thể dislike bài viết.');
+            }
+
+            $user = auth()->user();
+
+            // Kiểm tra xem user đã có reaction chưa
+            $existingReaction = PostReaction::where('user_id', $user->id)
+                ->where('post_id', $post->id)
+                ->first();
+
+            if ($existingReaction) {
+                if ($existingReaction->reaction_type === 'dislike') {
+                    // Nếu đã dislike thì xóa reaction
+                    $existingReaction->delete();
+                    $message = 'Đã bỏ dislike bài viết';
+                } else {
+                    // Nếu đang like thì chuyển sang dislike
+                    $existingReaction->update(['reaction_type' => 'dislike']);
+                    $message = 'Đã chuyển từ like sang dislike';
+                }
+            } else {
+                // Tạo reaction mới
+                PostReaction::create([
+                    'user_id' => $user->id,
+                    'post_id' => $post->id,
+                    'reaction_type' => 'dislike'
+                ]);
+                $message = 'Đã dislike bài viết';
+            }
+
+            return redirect()->route('detailPost', $post->id)
+                ->with('success', $message);
         } catch (\Exception $e) {
             $this->logException($e, 'PostController@unlike');
-            return redirect()->back()->withErrors('Có lỗi xảy ra khi unlike bài viết.');
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi dislike bài viết.');
         }
     }
 }

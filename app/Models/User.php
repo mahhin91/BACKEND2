@@ -18,7 +18,10 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'birth_date', 'hometown', 'role', 'avatar', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'role'
     ];
 
     /**
@@ -27,7 +30,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     /**
@@ -43,5 +47,20 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isAuthor()
+    {
+        return $this->role === 'author';
+    }
+
+    public function isReader()
+    {
+        return $this->role === 'reader';
     }
 }

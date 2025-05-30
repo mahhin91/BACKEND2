@@ -70,8 +70,11 @@
         <form action="{{ route('register') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-3">
-                <label for="name" class="form-label">Tên</label>
-                <input type="text" class="form-control" id="name" name="name" required placeholder="Nhập tên của bạn">
+                <label for="name" class="form-label">Họ và tên</label>
+                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required autofocus placeholder="Nhập tên của bạn">
+                @error('name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="birth_date" class="form-label">Ngày sinh</label>
@@ -83,10 +86,14 @@
             </div> --}}
             <div class="mb-3">
                 <label for="role" class="form-label">Vai trò</label>
-                <select class="form-select" id="role" name="role" required>
-                    <option value="author">Tác giả</option>
-                    <option value="reader">Độc giả</option>
+                <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
+                    <option value="">Chọn vai trò</option>
+                    <option value="reader" {{ old('role') == 'reader' ? 'selected' : '' }}>Độc giả</option>
+                    <option value="author" {{ old('role') == 'author' ? 'selected' : '' }}>Tác giả</option>
                 </select>
+                @error('role')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="avatar" class="form-label">Ảnh đại diện</label>
@@ -94,11 +101,18 @@
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required placeholder="Nhập email">
+                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required placeholder="Nhập email">
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Mật khẩu</label>
-                <input type="password" class="form-control" id="password" name="password" required placeholder="Nhập mật khẩu">
+                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required placeholder="Nhập mật khẩu">
+                <div class="form-text">Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số</div>
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>

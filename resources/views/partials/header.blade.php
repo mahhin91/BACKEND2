@@ -41,25 +41,25 @@
                             <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            @if(Auth::user()->role === 'admin')
+                            @if(auth()->user()->role == 'admin')
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('adminIndex') }}">
-                                        <i class="fas fa-tachometer-alt me-2"></i> Quản lý bài viết
+                                    <a class="dropdown-item" href="{{ route('admin.posts.index') }}">
+                                        <i class="fas fa-newspaper"></i> Quản lý bài viết
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('author.index') }}">
-                                        <i class="fas fa-users me-2"></i> Quản lý tác giả
+                                    <a class="dropdown-item" href="{{ route('admin.authors.index') }}">
+                                        <i class="fas fa-users"></i> Quản lý tác giả
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('waitingApproval') }}">
-                                        <i class="fas fa-clock me-2"></i> Chờ duyệt
+                                    <a class="dropdown-item" href="{{ route('admin.posts.waiting') }}">
+                                        <i class="fas fa-clock"></i> Bài viết chờ duyệt
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('categories') }}">
-                                        <i class="fas fa-tags me-2"></i> Quản lý danh mục
+                                        <i class="fas fa-tags"></i> Quản lý danh mục
                                     </a>
                                 </li>
                             @elseif(Auth::user()->role === 'author')
