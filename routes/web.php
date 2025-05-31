@@ -57,12 +57,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
     });
 
-    // Routes chỉ dành cho author
-    Route::middleware(['role:author'])->group(function () {
-        Route::get('posts/create', [PostController::class, 'create'])->name('posts.create');
-        Route::post('posts', [PostController::class, 'store'])->name('posts.store');
-    });
-
     // Routes chỉ dành cho admin
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         // Dashboard

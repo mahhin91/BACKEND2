@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->date('birth_date');
-            $table->string('hometown');
             $table->enum('role', ['admin', 'author', 'reader']);
             $table->string('avatar')->nullable();
             $table->string('email')->unique();

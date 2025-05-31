@@ -6,33 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('post_reactions', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['pending', 'approved', 'rejected']);
-            $table->text('rejection_reason')->nullable();
-            $table->date('published_at')->nullable();
-            $table->integer('likes')->default(0);
-            $table->integer('dislikes')->default(0);
-            $table->integer('views')->default(0);
-            $table->string('thumbnail')->nullable();
-            $table->longText('content');
+            $table->foreignId('post_id')->constrained()->onDelete('cascade');
+            $table->enum('reaction_type', ['like', 'dislike']);
             $table->timestamps();
+            
+            // Đảm bảo mỗi user chỉ có thể like/dislike một bài viết một lần
+            $table->unique(['user_id', 'post_id']);
         });
-    }        
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('posts');
     }
-};
+
+    public function down()
+    {
+        Schema::dropIfExists('post_reactions');
+    }
+}; 

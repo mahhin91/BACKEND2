@@ -278,7 +278,7 @@
                 </li>
             @elseif(auth()->user()->role == 'author')
                 <li>
-                    <a href="{{ route('posts.create') }}">
+                    <a href="{{ route('author.posts.create') }}">
                         <i class="fas fa-plus-circle"></i>
                         Tạo bài viết
                     </a>

@@ -64,7 +64,7 @@
                                 </li>
                             @elseif(Auth::user()->role === 'author')
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('posts.create') }}">
+                                    <a class="dropdown-item" href="{{ route('author.posts.create') }}">
                                         <i class="fas fa-plus-circle me-2"></i> Tạo bài viết
                                     </a>
                                 </li>
