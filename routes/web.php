@@ -80,4 +80,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/posts/{post}/approve', [AdminPostController::class, 'approve'])->name('posts.approve');
         Route::get('/posts/{post}/reject', [AdminPostController::class, 'reject'])->name('posts.reject');
     });
+
+    // Routes chỉ dành cho author
+    Route::prefix('author')->name('author.')->middleware(['auth', 'author'])->group(function () {
+        Route::get('/posts', [PostController::class, 'index'])->name('posts');
+        Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+        Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+        Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
+        Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
+        Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+        Route::get('/posts/author/{authorId}', [PostController::class, 'listOfPostByAuthor'])->name('posts.list');
+    });
 });

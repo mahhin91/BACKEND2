@@ -69,7 +69,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('listOfPostByAuthor', auth()->user()->id) }}">
+                                    <a class="dropdown-item" href="{{ route('author.posts.list', auth()->user()->id) }}">
                                         <i class="fas fa-list me-2"></i> Quản lý bài viết
                                     </a>
                                 </li>

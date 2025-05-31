@@ -284,7 +284,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('listOfPostByAuthor', auth()->user()->id) }}">
+                    <a href="{{ route('author.posts.list', auth()->user()->id) }}">
                         <i class="fas fa-list"></i>
                         Quản lý bài viết
                     </a>
