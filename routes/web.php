@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Admin\AuthorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +80,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/posts/waiting-approval', [AdminPostController::class, 'waitingApproval'])->name('posts.waiting');
         Route::get('/posts/{post}/approve', [AdminPostController::class, 'approve'])->name('posts.approve');
         Route::get('/posts/{post}/reject', [AdminPostController::class, 'reject'])->name('posts.reject');
+        Route::get('/authors/{authorId}/posts', [AdminPostController::class, 'listOfPostByAuthor'])->name('authors.posts');
     });
 
     // Routes chỉ dành cho author
@@ -91,4 +93,5 @@ Route::middleware('auth')->group(function () {
         Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
         Route::get('/posts/author/{authorId}', [PostController::class, 'listOfPostByAuthor'])->name('posts.list');
     });
+
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Models\User; // Thêm dòng này nếu chưa có
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -43,4 +44,12 @@ class PostController extends Controller
         $post->update(['status' => 'rejected']);
         return redirect()->back()->with('success', 'Bài viết đã bị từ chối.');
     }
-} 
+
+    public function listOfPostByAuthor($authorId)
+    {
+        $author = User::with('posts')->findOrFail($authorId);
+        $posts = $author->posts()->latest()->paginate(10);
+
+        return view('admin.post.by_author', compact('author', 'posts'));
+    }
+}

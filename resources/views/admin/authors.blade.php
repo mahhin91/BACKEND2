@@ -30,7 +30,7 @@
                                     <span class="badge bg-info text-dark">{{ $author->posts_count }}</span>
                                 </td>
                                 <td>
-                                    <a class="btn btn-sm btn-outline-primary" href="{{ route('listOfPostByAuthor', $author->id) }}">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ route('admin.authors.posts', $author->id) }}">
                                         <i class="fas fa-eye"></i> Xem
                                     </a>
                                 </td>
