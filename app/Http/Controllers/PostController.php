@@ -83,34 +83,30 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'content' => 'required|string',
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
-                'category_id' => 'required|exists:categories,id',
-            ]);
+        $validated = $request->validate([
+            'title' => 'required|string|max:255|unique:posts,title',
+            'content' => 'required',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'category_id' => 'required|exists:categories,id',
+        ], [
+            'title.unique' => 'Bài viết đã tồn tại.',
+        ]);
 
-            if ($request->hasFile('thumbnail')) {
-                $file = $request->file('thumbnail');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('thumbnails', $filename, 'public');
-                $validated['thumbnail'] = $path;
-            }
-
-            $validated['user_id'] = auth()->user()->id;
-            $validated['status'] = 'pending';
-
-            Post::create($validated);
-            
-            return redirect()->route('listOfPostByAuthor', auth()->user()->id)
-                ->with('success', 'Tạo bài viết thành công!');
-        } catch (\Exception $e) {
-            $this->logException($e, 'PostController@store');
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => $e->getMessage()]);
+        $thumbnailPath = null;
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
         }
+
+        Post::create([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'thumbnail' => $thumbnailPath,
+            'category_id' => $validated['category_id'],
+            'user_id' => Auth::id(),
+            'status' => 'pending',
+        ]);
+        return redirect()->route('author.posts.list', Auth::id())
+            ->with('success', 'Bài viết đã được tạo thành công và đang chờ duyệt.');
     }
 
     public function approve($id)

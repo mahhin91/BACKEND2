@@ -36,6 +36,10 @@ Route::middleware('auth')->group(function () {
     // Route đăng xuất
     Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
     
+    // Like/Dislike bài viết (chỉ cho reader)
+    Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('like');
+    Route::post('/posts/{post}/unlike', [PostController::class, 'unlike'])->name('unlike');
+
     // Routes chỉ dành cho admin
     Route::middleware(['role:admin'])->group(function () {
         Route::get('admin/author', [AdminController::class, 'authors'])->name('author.index');
@@ -84,7 +88,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Routes chỉ dành cho author
-    Route::prefix('author')->name('author.')->middleware(['auth', 'author'])->group(function () {
+    Route::prefix('author')->name('author.')->middleware(['auth', 'role:author'])->group(function () {
         Route::get('/posts', [PostController::class, 'index'])->name('posts');
         Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
         Route::post('/posts', [PostController::class, 'store'])->name('posts.store');

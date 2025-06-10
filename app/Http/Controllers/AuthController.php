@@ -61,18 +61,26 @@ class AuthController extends Controller
                     'confirmed',
                     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
                 ],
-                'role' => 'required|in:reader,author'
+                'role' => 'required|in:reader,author',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Thêm dòng này
             ], [
                 'password.regex' => 'Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường và một số.',
                 'email.unique' => 'Email này đã được sử dụng.',
                 'role.in' => 'Vai trò không hợp lệ.'
             ]);
 
+            // Xử lý upload avatar
+            $avatarPath = null;
+            if ($request->hasFile('avatar')) {
+                $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            }
+
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'role' => $validated['role']
+                'role' => $validated['role'],
+                'avatar' => $avatarPath // Lưu đường dẫn avatar
             ]);
 
             // Log thông tin đăng ký
