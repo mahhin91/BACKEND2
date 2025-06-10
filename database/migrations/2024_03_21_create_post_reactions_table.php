@@ -6,22 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        Schema::create('post_reactions', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
-            $table->enum('reaction_type', ['like', 'dislike']);
+            $table->string('name');
             $table->timestamps();
-            
-            // Đảm bảo mỗi user chỉ có thể like/dislike một bài viết một lần
-            $table->unique(['user_id', 'post_id']);
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        Schema::dropIfExists('post_reactions');
+        Schema::dropIfExists('categories');
     }
-}; 
+};

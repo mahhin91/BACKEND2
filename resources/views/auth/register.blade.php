@@ -80,10 +80,6 @@
                 <label for="birth_date" class="form-label">Ngày sinh</label>
                 <input type="date" class="form-control" id="birth_date" name="birth_date" required>
             </div>
-            {{-- <div class="mb-3">
-                <label for="hometown" class="form-label">Quê quán</label>
-                <input type="text" class="form-control" id="hometown" name="hometown" required placeholder="Nhập quê quán">
-            </div> --}}
             <div class="mb-3">
                 <label for="role" class="form-label">Vai trò</label>
                 <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>

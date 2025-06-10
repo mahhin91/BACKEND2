@@ -16,7 +16,7 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('author.posts.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="mb-3">

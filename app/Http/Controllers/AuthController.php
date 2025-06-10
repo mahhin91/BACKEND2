@@ -80,7 +80,8 @@ class AuthController extends Controller
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'role' => $validated['role'],
-                'avatar' => $avatarPath // Lưu đường dẫn avatar
+                'birth_date' => $request->input('birth_date', null), // Optional field
+                'avatar' => $request->file('avatar') ? $request->file('avatar')->store('avatars', 'public') : null
             ]);
 
             // Log thông tin đăng ký
